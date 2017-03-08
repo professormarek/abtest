@@ -7,7 +7,7 @@ PORT_NUMBER = 8080
 try:
 	#create a web server and specify the handler class for requests
 	server = HTTPServer(('', PORT_NUMBER), BaseHTTPRequestHandler)
-	print 'Started http server on: ' server.socket.getsockname()
+	print 'Started http server on: ', server.socket.getsockname()
 	#wait forever for incoming http requests
 	server.serve_forever()
 
