@@ -10,6 +10,7 @@ PORT_NUMBER = 8080
 TEST_THRESHOLD = 0.2 #show the "B" version 20% of the time
 
 #store the html we're going to display as a string (it's simple text after all)
+#HTMLA is version A of the page created by student group A
 HTMLA =  """
 <!DOCTYPE html>
 <html>
@@ -28,7 +29,7 @@ HTMLA =  """
     </body>
 </html>
 """
-
+#HTMLB is version B of the page created by student group B
 HTMLB="""
 <!DOCTYPE html>
 <html>
@@ -59,6 +60,10 @@ THANKS = """
         Thanks for your bitcoins mwa ha ha
     </body>
 </html>"""
+
+#notice we could also read the html out of a text file on disk.. 
+#how is left as an exercise to the reader
+
 #in order to respond to http requests we need to create a custom handler class
 class myHandler(BaseHTTPRequestHandler):
 	#declare a method to handle GET requests so that we can serve a page!
