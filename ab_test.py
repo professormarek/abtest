@@ -1,8 +1,13 @@
 #!/usr/bin/python
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+import random
+import cgi
 
 #note the usual http port is 80
 PORT_NUMBER = 8080
+
+#a constant that defines how often the "B" version of the site is shown
+TEST_THRESHOLD = 0.2 #show the "B" version 20% of the time
 
 #store the html we're going to display as a string (it's simple text after all)
 HTMLA =  """
@@ -14,7 +19,7 @@ HTMLA =  """
     <body>
         We love python..just kidding
         <form action="/" method="post" >
-            <button type='submit' name = 'my_button' value= 'This is a value I chose for this button' >
+            <button type='submit' name = 'my_button' value= 'A' >
             <h2>Spectacular Professor</h2>
             <img src="https://media.licdn.com/mpr/mpr/shrinknp_400_400/AAEAAQAAAAAAAAK4AAAAJDMyZjI3Mjg4LTRhNTAtNDU2OS1hMWQ1LTkzZWFiOGU5ZjE1Ng.jpg" alt="Mountain View" style="width:304px;height:228px;">   
                 
@@ -35,7 +40,7 @@ HTMLB="""
        <p> <b>You are so hot Prof. Laskowski!</b></p>
         Group Members:Saishang Jiang, Mingyi Xu, Yansong Chen, Yingjun Feng
         <form action="/" method="post" >
-            <button type='submit' name = 'my_button' value= 'This is a value I chose for this button' >
+            <button type='submit' name = 'my_button' value= 'B' >
                 OK
             </button>
         </form>
@@ -65,12 +70,40 @@ class myHandler(BaseHTTPRequestHandler):
 		self.send_header('Content-type', 'text/html')
 		self.end_headers()
 		#also send some html for the browser to render
+
+		#to do an A/B test let's send the browser either version A or B randomly
+		if random.random() < TEST_THRESHOLD:
+			HTML = HTMLB #use the B version
+			print "LOG: served version B"
+		else:
+			HTML = HTMLA #use the A version
+			print "LOG: served version A"
+
 		#wfile is an object where we can write the response to the broswer
 		self.wfile.write(HTML)
 
 	#declare a method to handle http POST requests
 	def do_POST(self):
 		print "LOG: We received a POST request!"
+
+		#process the data submitted by the browser (which button was clicked)
+		#(this code is a little ugly)
+		form = cgi.FieldStorage(
+			fp=self.rfile,
+			headers=self.headers,
+			environ={'REQUEST_METHOD':'POST',
+			'CONTENT_TYPE':self.headers['Content-Type'],
+			})
+		#iterate through the data returned by the form
+		for field in form.keys():
+			field_item = form[field]
+			#print field_item
+			if field_item.name == 'my_button':
+				if field_item.value == 'A':
+					print "LOG: version A was clicked!"
+				else:
+					print "LOG: version B was clicked!"
+
 		self.send_response(200)
 		#send http header
 		self.send_header('Content-type', 'text/html')
